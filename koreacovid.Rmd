@@ -24,12 +24,13 @@ state of a patient must be died or alive - we adjust that as well
   
 # Question 1 - Is dying independent of sex
 
-
-
+$H_0$: Covid 19 deaths in Korea Jan.-May are unrelated to sex.
+$H_A$: Yes, there is a relation to Covid 19 deaths in Korea from Jan.- May relating to sex of the patient.
 
 Table of patients:
 ```{r}
-
+kRdata$sex = as.factor(kRdata$sex)
+kRdata$result = as.factor(kRdata$result)                       
 # cross tabulation, patient state by gender
 
 with(kRdata, table(Sex, result))
@@ -39,8 +40,22 @@ with(kRdata, table(Sex, result))
 ## We create two bar charts - one based on frequency and the other on percent, use ggplot commands to do this
 
 `
+```{r}
+dd2 <- kRdata %>% group_by(result,Sex) %>% summarize(count=n()) %>% mutate(prcnt=count/sum(count))
 
+
+# the group_by followed by summarize(count=n())
+
+basicC <- ggplot(dd2,aes(x=Sex,y=count,fill=result))
+basicC + geom_bar(stat="identity",position="dodge")
+
+#Now for percentage plot
+
+basicCC <- ggplot(dd2,aes(x=Sex,y=prcnt*100,fill=result)) 
+basicCC + geom_bar(stat="identity", position = "dodge")
+```
   
+ Gender plays a role in the deaths of Covid 19 in Korea. Graph shows more males have died of Covid 19 than females with Covid 19 in Korea.
 
 
 
@@ -49,11 +64,24 @@ with(kRdata, table(Sex, result))
   
 ## Numerical results
 
+```{r}
+table1 <- xtabs(~result + Sex, data=kRdata)
+rowPerc(table1)
+colPerc(table1)
+```
+Results shows Males died twice as much of Covid 19 than Females with Covid 19 in Korea. Showing that gender is playing a role in fatalities.
 
 ## Inferential results 
 
+```{r}
+chisq.test(table1)
+chisqtestGC(table1)
+fisher.test(table1)
+```
 
+P-value is so small we reject the null hypothesis. The probability of a male dying is 2.3 greater than of a Female. 
 
 
 ## Conclusions
 
+The Conclusion is that males are more likely to die from Covid in Korea than Females that have Covid 19 in Korea. That Sex is a factor in the results of deaths of Covid 19 in Korea. 
